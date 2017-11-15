@@ -21,7 +21,7 @@ def readme():
                 return f.read()
 
 setup(
-    name='oauthlib_extras',
+    name='oauthlib-extras',
     version='1.0',
     description='Extends the oauthlib package with additional grant types',
     long_description=readme(),
