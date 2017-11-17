@@ -7,9 +7,12 @@ log = logging.getLogger(__name__)
 
 
 class AuthorizationCodePushGrant(AuthorizationCodeGrant):
-    completion_response = None
-    error_response = None
+    success_uri = None
+    error_uri = None
     response_types = ['push_code']
+
+    def get_response_for_uri(self, uri):
+        return ({'Location': uri}, None, 302)
 
     def create_authorization_response(self, request, token_handler):
         try:
@@ -27,7 +30,7 @@ class AuthorizationCodePushGrant(AuthorizationCodeGrant):
 
         except errors.OAuth2Error as e:
             log.debug('Client error during validation of %r. %r.', request, e)
-            return self.get_error_response(e)
+            return self.get_response_for_uri(self.get_error_uri(e))
 
         grant = self.create_authorization_code(request)
         log.debug('Saving grant %r for %r.', grant, request)
@@ -35,10 +38,10 @@ class AuthorizationCodePushGrant(AuthorizationCodeGrant):
             request.client_id, grant, request)
         # only difference to the original AuthorizationCodeGrant
         code = grant['code']
-        state = grant['state']
-        push_code = '{0}&{1}'.format(code, state)
+        state = grant.get('state', None)
+        push_code = '{0}&{1}'.format(code, state) if state else code
         self.authorization_push(request, push_code)
-        return self.get_completion_response()
+        return self.get_response_for_uri(self.get_success_uri())
 
     def validate_authorization_request(self, request):
         for param in ('client_id', 'response_type', 'scope', 'state'):
@@ -120,20 +123,20 @@ class AuthorizationCodePushGrant(AuthorizationCodeGrant):
         raise NotImplementedError('The push transport needs to be implemented in a concrete implementation of this '
                                   'class.')
 
-    def get_completion_response(self):
-        assert self.completion_response is not None, (
-            "'%s' should either include a `completion_response` attribute, "
-            "or override the `get_completion_response()` method."
+    def get_success_uri(self):
+        assert self.success_uri is not None, (
+            "'%s' should either include a `success_uri` attribute, "
+            "or override the `get_success_uri()` method."
             % self.__class__.__name__
         )
 
-        return self.completion_response
+        return self.success_uri
 
-    def get_error_response(self, exception):
-        assert self.completion_response is not None, (
-            "'%s' should either include a `error_response` attribute, "
-            "or override the `get_error_response()` method."
+    def get_error_uri(self, exception):
+        assert self.error_uri is not None, (
+            "'%s' should either include a `error_uri` attribute, "
+            "or override the `get_error_uri()` method."
             % self.__class__.__name__
         )
 
-        return self.error_response
+        return self.error_uri
