@@ -1,12 +1,9 @@
-"""
-oauthlib_extras.oauth2.errors
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Error used both by OAuth 2 clients and providers to represent the spec
-defined error responses for all four core grant types.
-"""
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
 
 
-class MalformedResponseSecretError(OAuth2Error):
-    error = 'malformed_response_secret'
+class MalformedResponsePushCodeError(OAuth2Error):
+    """
+    Error for the case of a malformed
+    auth push code.
+    """
+    error = 'malformed_response_push_code'
