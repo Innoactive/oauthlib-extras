@@ -52,7 +52,7 @@ class AuthorizationCodePushGrant(AuthorizationCodeGrant):
 
         if request.response_type is None:
             raise errors.MissingResponseTypeError(request=request)
-        elif not 'code' in request.response_type and request.response_type != 'none':
+        elif not 'push_code' in request.response_type and request.response_type != 'none':
             raise errors.UnsupportedResponseTypeError(request=request)
 
         if not self.request_validator.validate_response_type(request.client_id,
