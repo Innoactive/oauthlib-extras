@@ -75,7 +75,7 @@ class AuthorizationCodePushGrant(AuthorizationCodeGrant):
             'response_type': request.response_type,
             'state': request.state,
             'request': request,
-            'redirect_uri': None
+            'redirect_uri': ''
         }
 
     def validate_token_request(self, request):

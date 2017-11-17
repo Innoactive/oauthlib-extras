@@ -1,5 +1,6 @@
 from oauthlib.oauth2 import Server as ServerBase
 
+
 class Server(ServerBase):
     auth_code_push_grant_class = None
 
