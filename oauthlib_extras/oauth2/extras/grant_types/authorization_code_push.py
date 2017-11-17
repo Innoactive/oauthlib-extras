@@ -7,6 +7,7 @@ log = logging.getLogger(__name__)
 
 class AuthorizationCodePushGrant(AuthorizationCodeGrant):
     completion_response = None
+    response_types = ['push_code']
 
     def create_authorization_response(self, request, token_handler):
         try:
@@ -28,7 +29,10 @@ class AuthorizationCodePushGrant(AuthorizationCodeGrant):
         self.request_validator.save_authorization_code(
             request.client_id, grant, request)
         # only difference to the original AuthorizationCodeGrant
-        self.authorization_push(request, grant)
+        code = grant['code']
+        state = grant['state']
+        push_code = '{0}&{1}'.format(code, state)
+        self.authorization_push(request, push_code)
         return self.get_completion_response()
 
     def validate_authorization_request(self, request):
@@ -124,7 +128,7 @@ class AuthorizationCodePushGrant(AuthorizationCodeGrant):
         for validator in self.custom_validators.post_token:
             validator(request)
 
-    def authorization_push(self, request, grant):
+    def authorization_push(self, request, push_code):
         raise NotImplementedError('The push transport needs to be implemented in a concrete implementation of this '
                                   'class.')
 
