@@ -7,14 +7,33 @@ log = logging.getLogger(__name__)
 
 
 class AuthorizationCodePushGrant(AuthorizationCodeGrant):
+    """
+    Very similar to AuthorizationCodeGrant.
+    Redirect_uri was let out, and authorization_push method was added.
+    You need to override this method in a concrete implementation to
+    define the push (=transport) of the auth code.
+
+    Success_uri amd error_uri should be self-explanatory.
+    """
     success_uri = None
     error_uri = None
     response_types = ['push_code']
 
     def get_response_for_uri(self, uri):
+        """
+        Helper method, which constructs response
+        :param uri:
+        :return:
+        """
         return ({'Location': uri}, None, 302)
 
     def create_authorization_response(self, request, token_handler):
+        """
+        Same as original method (of AuthorizationCodeGrant) except for the noted difference.
+        :param request:
+        :param token_handler:
+        :return:
+        """
         try:
             if not request.scopes:
                 raise ValueError('Scopes must be set on post auth.')
@@ -44,6 +63,12 @@ class AuthorizationCodePushGrant(AuthorizationCodeGrant):
         return self.get_response_for_uri(self.get_success_uri())
 
     def validate_authorization_request(self, request):
+        """
+        Same as original method (of AuthorizationCodeGrant) except for
+        letting out the request_uri and request_uri validations
+        :param request:
+        :return:
+        """
         for param in ('client_id', 'response_type', 'scope', 'state'):
             try:
                 duplicate_params = request.duplicate_params
@@ -82,6 +107,12 @@ class AuthorizationCodePushGrant(AuthorizationCodeGrant):
         }
 
     def validate_token_request(self, request):
+        """
+        Same as original method (of AuthorizationCodeGrant) except for
+        letting out the request_uri and request_uri validations
+        :param request:
+        :return:
+        """
         if request.grant_type != 'authorization_code_push':
             raise errors.UnsupportedGrantTypeError(request=request)
 
@@ -120,10 +151,20 @@ class AuthorizationCodePushGrant(AuthorizationCodeGrant):
                 log.debug('request.%s was not set on code validation.', attr)
 
     def authorization_push(self, request, push_code):
+        """
+        Override it in a concrete implementation, to define the transport way.
+        :param request: request object (contains user data etc)
+        :param push_code: auth code as string
+        :return:
+        """
         raise NotImplementedError('The push transport needs to be implemented in a concrete implementation of this '
                                   'class.')
 
     def get_success_uri(self):
+        """
+        Returns success uri
+        :return:
+        """
         assert self.success_uri is not None, (
             "'%s' should either include a `success_uri` attribute, "
             "or override the `get_success_uri()` method."
@@ -133,6 +174,11 @@ class AuthorizationCodePushGrant(AuthorizationCodeGrant):
         return self.success_uri
 
     def get_error_uri(self, exception):
+        """
+        Returns error uri
+        :param exception:
+        :return:
+        """
         assert self.error_uri is not None, (
             "'%s' should either include a `error_uri` attribute, "
             "or override the `get_error_uri()` method."

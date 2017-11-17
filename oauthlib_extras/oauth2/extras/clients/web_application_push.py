@@ -10,7 +10,7 @@ class WebApplicationPushClient(Client):
     """
     Same documentation applies as for original WebApplicationClient,
     except for the redirect_uri, which was left out here because
-    the receiving end handles how code gets pushed to the user.
+    the server handles how code gets pushed to the user.
     """
     def __init__(self, client_id, code=None, **kwargs):
         super(WebApplicationPushClient, self).__init__(client_id, **kwargs)
