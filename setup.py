@@ -33,7 +33,7 @@ setup(
     keywords=['oauth', 'oauthlib', 'grant'],
     packages=find_packages(exclude=['docs', 'tests', 'tests.*']),
     install_requires=[
-        'oauthlib==1.1.2'
+        'oauthlib>=1.1.2'
     ],
     test_suite='nose.collector',
     tests_require=['nose'],
